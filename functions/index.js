@@ -1,21 +1,43 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const app = express();
+const express = require('express');
+
+
 
 admin.initializeApp();
 
-const express = require('express');
-const app = express();
+const config = {
+  apiKey: "AIzaSyC9w0LoM4u0uW8WIkCvqTSJ45w7ln2a1jo",
+  authDomain: "immediatemail-b8929.firebaseapp.com",
+  databaseURL: "https://immediatemail-b8929.firebaseio.com",
+  projectId: "immediatemail-b8929",
+  storageBucket: "immediatemail-b8929.appspot.com",
+  messagingSenderId: "764147957584",
+  appId: "1:764147957584:web:7745fa8633ce2dcba9f655",
+  measurementId: "G-9EJNXTM4DY"
+};
+
+
+const firebase = require('firebase');
+firebase.initializeApp()
 
 
 app.get('/mails', (request, response) => {
 	admin
 	.firestore()
 	.collection('mails')
+	.orderBy('createdAt', 'desc')
 	.get()   
 	.then((data) => {
 	 	let mails = [];
 	 	data.forEach((doc) => {
-	 		mails.push(doc.data());
+	 		mails.push({
+	 			mailId: doc.id,
+	 			body: doc.data().body,
+	 			userHandle: doc.data().userHandle,
+	 			createdAt: new Date().toISOString()
+	 		});
 	 	});
 	 	return response.json(mails);
 	 })
@@ -28,8 +50,9 @@ app.get('/mails', (request, response) => {
 app.post('/update', (request, response) => {
 	
 	const newMail = {
-		body: request.body.userHandle,
-		createdAt: admin.firestore.Timestamp.fromDate(new Date())
+		body: request.body.body,
+		userHandle: request.body.userHandle,
+		createdAt: new Date().toISOString()
 	};
 	admin.firestore()
 	     .collection('screams')
