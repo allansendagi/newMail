@@ -1,11 +1,11 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const app = express();
-const express = require('express');
-
-
 
 admin.initializeApp();
+
+const express = require('express')
+const app = express();
+
 
 const config = {
   apiKey: "AIzaSyC9w0LoM4u0uW8WIkCvqTSJ45w7ln2a1jo",
@@ -18,9 +18,8 @@ const config = {
   measurementId: "G-9EJNXTM4DY"
 };
 
-
 const firebase = require('firebase');
-firebase.initializeApp()
+firebase.initializeApp(config);
 
 
 app.get('/mails', (request, response) => {
@@ -64,6 +63,25 @@ app.post('/update', (request, response) => {
 	     	response.status(500).json({error: 'something went wrong'});
 	     	console.error(err);
 	     })
+});
+//SignUproute
+
+app.post('/signup', (request, response)=> {
+	const newUser = {
+		email: request.body.email,
+	    password: request.body.password,
+	    confirmPassword: request.body.confirmPassword,
+	    handle: request.body.handle,
+	}
+	//validate data
+	firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+			.then(data => {
+				return response.status(201).json({ message: `user ${data.user.uid} signed up successfully`});
+			})
+			.catch( err => {
+				console.error(err);
+				return response.status(500).json({ error: err.code });
+			});
 });
 
 exports.api = functions.https.onRequest(app);
