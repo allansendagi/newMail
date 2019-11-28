@@ -54,7 +54,7 @@ app.post('/update', (request, response) => {
 		createdAt: new Date().toISOString()
 	};
 	admin.firestore()
-	     .collection('screams')
+	     .collection('mails')
 	     .add(newMail)
 	     .then(doc => {
 	     	response.json({message: `document ${doc.id} created successfully`});
