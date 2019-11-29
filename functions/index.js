@@ -7,6 +7,8 @@ const express = require('express')
 const app = express();
 
 
+
+
 const config = {
   apiKey: "AIzaSyC9w0LoM4u0uW8WIkCvqTSJ45w7ln2a1jo",
   authDomain: "immediatemail-b8929.firebaseapp.com",
@@ -21,10 +23,11 @@ const config = {
 const firebase = require('firebase');
 firebase.initializeApp(config);
 
+const db = admin.firestore();
+
 
 app.get('/mails', (request, response) => {
-	admin
-	.firestore()
+	db
 	.collection('mails')
 	.orderBy('createdAt', 'desc')
 	.get()   
@@ -53,7 +56,7 @@ app.post('/update', (request, response) => {
 		userHandle: request.body.userHandle,
 		createdAt: new Date().toISOString()
 	};
-	admin.firestore()
+	     db
 	     .collection('mails')
 	     .add(newMail)
 	     .then(doc => {
@@ -74,14 +77,24 @@ app.post('/signup', (request, response)=> {
 	    handle: request.body.handle,
 	}
 	//validate data
-	firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
-			.then(data => {
-				return response.status(201).json({ message: `user ${data.user.uid} signed up successfully`});
-			})
-			.catch( err => {
-				console.error(err);
-				return response.status(500).json({ error: err.code });
-			});
+	db.doc(`/users/${newUser.handle}`).get()
+	   .then(doc => {
+	   	if (doc.exists){
+	   		return response.status(400).json({handle: 'this handle is already taken'});
+        } else {
+	   		return firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+	       }
+	   })
+	   	.then((data) => {
+	   		return data.user.getIdToken();
+	   	})
+	   	.then((token) => {
+	   		return response.status(201).json({ token });
+	   	})
+	   	.catch((err) => {
+	   		console.error(err);
+	   		return response.status(500).json({ error: err.code});
+	   	})
 });
 
 exports.api = functions.https.onRequest(app);
