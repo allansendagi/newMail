@@ -1,15 +1,22 @@
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
 
-admin.initializeApp();
+// const admin = require('firebase-admin');
+
+// admin.initializeApp();
+
+const admin = require("firebase-admin");
+
+var serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://immediatemail-b8929.firebaseio.com"
+});
 
 const express = require('express')
 const app = express();
 
-
-
-
-const config = {
+const firebaseConfig = {
   apiKey: "AIzaSyC9w0LoM4u0uW8WIkCvqTSJ45w7ln2a1jo",
   authDomain: "immediatemail-b8929.firebaseapp.com",
   databaseURL: "https://immediatemail-b8929.firebaseio.com",
@@ -18,10 +25,11 @@ const config = {
   messagingSenderId: "764147957584",
   appId: "1:764147957584:web:7745fa8633ce2dcba9f655",
   measurementId: "G-9EJNXTM4DY"
-};
+}
+
 
 const firebase = require('firebase');
-firebase.initializeApp(config);
+firebase.initializeApp(firebaseConfig);
 
 const db = admin.firestore();
 
