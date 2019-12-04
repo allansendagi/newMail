@@ -15,7 +15,7 @@ exports.signUp = (request, response)=> {
 	    handle: request.body.handle,
 	}
 
-	const { valid, error } = validateSignUpData(newUser);
+	const { valid, errors } = validateSignUpData(newUser);
 
 	if (!valid) return response.status(400).json(errors);
 
@@ -50,11 +50,11 @@ exports.signUp = (request, response)=> {
 	   		return response.status(201).json({ token });
 	   	})
 	   	.catch((err) => {
-	   		console.error(err);
+	   		console.errors(err);
 	   		if (err.code === 'auth/email-already-in-use'){
 	   			return response.status(400).json({ email: 'Email is already in use'})
 	   		} else {
-	   			return response.status(500).json({ error: err.code})
+	   			return response.status(500).json({ errors: err.code})
 	   	   }
 	   	})
 }
@@ -66,12 +66,11 @@ exports.login = (request, response) => {
 		password: request.body.password
 	};
 
-	let errors = {};
+	const { valid, errors } = validateLoginData(user);
 
-	if (isEmpty(user.email)) errors.email = "Must not be empty";
-	if (isEmpty(user.password)) errors.password = "Must not be empty";
+	if (!valid) return response.status(400).json(errors);
 
-	if (Object.keys(errors).length > 0) return response.status(400).json(errors);
+	
 
 	firebase
 	 .auth()
@@ -83,13 +82,13 @@ exports.login = (request, response) => {
 	 	return response.json({token});
 	 })
 	 .catch(err => {
-	 	console.error(err);
+	 	console.errors(err);
 	 	if (err.code === 'auth/wrong-password'){
 	 		return response
 	 		.status(403)
 	 		.json({ general: 'Wrong credentials, please try again'});
 	 	} else 
-	 	return response.status(500).json({ error: err.code });
+	 	return response.status(500).json({ errors: err.code });
 	 })
 
 }

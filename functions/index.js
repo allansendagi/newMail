@@ -5,19 +5,19 @@ const app = express();
 
 const FBAuth = require('./util/fbauth');
 
-const { getAllMails } = require('./handlers/mails');
-const { signup, login } = require('./handlers/users')
+const { getAllMails, postOneMail } = require('./handlers/mails');
+const { signUp, login } = require('./handlers/users')
 
 
 
 
-const firebase = require('firebase');
-firebase.initializeApp(firebaseConfig);
+// const firebase = require('firebase');
+// firebase.initializeApp(firebaseConfig);
 
 
 //mail routes
 app.get('/mails', getAllMails);
-app.post('/update', FBAuth, postOneUpdate);
+app.post('/update', FBAuth, postOneMail);
 
 //usersRoutes
 app.post('/signup', signUp);
