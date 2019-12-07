@@ -4,7 +4,9 @@ var serviceAccount = require("../serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://immediatemail-b8929.firebaseio.com"
+  databaseURL: "https://immediatemail-b8929.firebaseio.com",
+  storageBucket: "immediatemail-b8929.appspot.com"
+
 });
 
 
