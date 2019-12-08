@@ -105,12 +105,9 @@ let imageFileName;
 let imageToBeUploaded = {};
 
 	busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-		console.log(fieldname);
-		console.log(filename);
-		console.log(mimetype);
 
 		const imageExtension = filename.split('.')[filename.split('.').length -1];
-		const imageFileName = `${Math.round(Math.random()*1000000000)}.${imageExtension}`;
+		imageFileName = `${Math.round(Math.random()*1000000000)}.${imageExtension}`;
 		const filepath = path.join(os.tmpdir(), imageFileName);
 		imageToBeUploaded = { filepath, mimetype }; 
 		file.pipe(fs.createWriteStream(filepath));
@@ -129,20 +126,18 @@ let imageToBeUploaded = {};
 		})
 		.then(() => {
 			const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageFileName}?alt=media`
-			return db.doc(`/users/${request.user.handle}`).update({ field: value({ imageUrl })
+			return db.doc(`/users/${request.user.handle}`).update({ imageUrl });
 			})
 			.then(() => {
-				return res.json({ message: 'image uploaded successfully'}); 
+				return response.json({ message: 'image uploaded successfully'}); 
 			})
 			.catch((err)=> {
 				console.error(err);
 				return response.status(500).json({ error: err.code });
-			})
-
 		})
+
 	}) 
 	busboy.end(request.rawBody);
-
 }
 // immediatemail-b8929.appspot.com
 
