@@ -6,7 +6,13 @@ const app = express();
 const FBAuth = require('./util/fbauth');
 
 const { getAllMails, postOneMail } = require('./handlers/mails');
-const { signUp, login, uploadImage} = require('./handlers/users')
+const { 
+	signUp,
+	login,
+	uploadImage,
+	addUserDetails,
+	getAuthenticatedUser
+} = require('./handlers/users')
 
 
 
@@ -22,7 +28,9 @@ app.post('/update', FBAuth, postOneMail);
 //usersRoutes
 app.post('/signup', signUp);
 app.post('/login', login);
-app.post('/user/image', FBAuth, uploadImage)
+app.post('/user/image', FBAuth, uploadImage);
+app.post('/user', FBAuth, addUserDetails);
+app.get('/user', FBAuth, getAuthenticatedUser)
 
 
 exports.api = functions.https.onRequest(app);

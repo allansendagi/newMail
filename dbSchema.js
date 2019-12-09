@@ -1,4 +1,27 @@
 let db = {
+	users: [
+	{
+		userId: '',
+		email: '',
+		handle: '',
+		createdAt: '',
+		imageUrl: '',
+		bio: '',
+		website: '',
+		location: 'London, UK'
+
+	}
+	],
+	likes: [
+	{
+		userHandle: 'user',
+		mailsId: 
+	},
+	{
+		userHandle: '',
+		screamId: ''
+	}
+	],
 mails: [
     {
 	  userHandle: 'user',
