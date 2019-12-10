@@ -5,7 +5,7 @@ const app = express();
 
 const FBAuth = require('./util/fbauth');
 
-const { getAllMails, postOneMail } = require('./handlers/mails');
+const { getAllMails, postOneMail, getMail } = require('./handlers/mails');
 const { 
 	signUp,
 	login,
@@ -24,6 +24,11 @@ const {
 //mail routes
 app.get('/mails', getAllMails);
 app.post('/update', FBAuth, postOneMail);
+app.get('/mails/:mailsId', getMail)
+//TODO delete mails
+//like a mail
+//unlike mails
+//comment 
 
 //usersRoutes
 app.post('/signup', signUp);

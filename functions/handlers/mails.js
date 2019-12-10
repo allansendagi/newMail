@@ -41,3 +41,35 @@ exports.postOneMail = (request, response) => {
 	     	console.error(err);
 	     })
 }
+
+exports.getMail = (request, response) => {
+	let mailData = {};
+	db.doc(`/mails/${request.params.mailId}`)
+	  .get()
+	  .then(doc => {
+	  	if(!doc.exists) {
+	  		return response.status(404).json({ error: 'Mail not found'});
+	  	} 
+	  	mailData = doc.data();
+	  	mailData.mailId = doc.id;
+	  	return db
+	  	  .collection('comments')
+	  	  .where('mailId', '==', request.params.mailId)
+	  	  .get();
+	  })
+	  .then(data) => {
+	  	mailData.comments = [];
+	  	data.forEach(doc) => {
+	  		mailData.comments.push(doc.data());
+	  	})
+	  	return response.json(mailData);
+	  })
+	  .catch((err) => {
+	  	console.error(err);
+	  	response.status(500).json({ error: err.code })
+	  })
+  
+  }
+
+
+
