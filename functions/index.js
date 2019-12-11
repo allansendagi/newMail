@@ -24,7 +24,7 @@ const {
 //mail routes
 app.get('/mails', getAllMails);
 app.post('/update', FBAuth, postOneMail);
-app.get('/mails/:mailsId', getMail)
+app.get('/update/:mailsId', getMail)
 //TODO delete mails
 //like a mail
 //unlike mails

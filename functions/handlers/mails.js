@@ -43,10 +43,10 @@ exports.postOneMail = (request, response) => {
 }
 
 exports.getMail = (request, response) => {
-	let mailData = {};
+	   let mailData = {};
 	db.doc(`/mails/${request.params.mailId}`)
 	  .get()
-	  .then(doc => {
+	  .then((doc) => {
 	  	if(!doc.exists) {
 	  		return response.status(404).json({ error: 'Mail not found'});
 	  	} 
@@ -56,10 +56,10 @@ exports.getMail = (request, response) => {
 	  	  .collection('comments')
 	  	  .where('mailId', '==', request.params.mailId)
 	  	  .get();
-	  })
-	  .then(data) => {
+	     })
+	  .then((data) => {
 	  	mailData.comments = [];
-	  	data.forEach(doc) => {
+	  	data.forEach((doc) => {
 	  		mailData.comments.push(doc.data());
 	  	})
 	  	return response.json(mailData);
@@ -68,7 +68,6 @@ exports.getMail = (request, response) => {
 	  	console.error(err);
 	  	response.status(500).json({ error: err.code })
 	  })
-  
   }
 
 
