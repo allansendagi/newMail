@@ -59,9 +59,16 @@ exports.getMail = (request, response) => {
 	     })
 	  .then((data) => {
 	  	mailData.comments = [];
-	  	data.forEach((doc) => {
-	  		mailData.comments.push(doc.data());
-	  	})
+
+		data.forEach(function (doc) {
+		  mailData.comments.push(doc.data());
+		});
+		// for(var i=0; i< data.length; i++) {
+		//   mailData.comments.push(doc.data())
+		// }
+	  	// data.forEach((doc) => {
+	  	// 	mailData.comments.push(doc.data());
+	  	// })
 	  	return response.json(mailData);
 	  })
 	  .catch((err) => {
