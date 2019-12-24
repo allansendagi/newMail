@@ -54,21 +54,22 @@ exports.getMail = (request, response) => {
 	  	mailData.mailId = doc.id;
 	  	return db
 	  	  .collection('comments')
+	  	  .orderBy('createdAt', 'desc')
 	  	  .where('mailId', '==', request.params.mailId)
 	  	  .get();
 	     })
 	  .then((data) => {
 	  	mailData.comments = [];
 
-		data.forEach(function (doc) {
-		  mailData.comments.push(doc.data());
-		});
+		// data.forEach(function (doc) {
+		//   mailData.comments.push(doc.data());
+		// });
 		// for(var i=0; i< data.length; i++) {
 		//   mailData.comments.push(doc.data())
 		// }
-	  	// data.forEach((doc) => {
-	  	// 	mailData.comments.push(doc.data());
-	  	// })
+	  	data.forEach((doc) => {
+	  		mailData.comments.push(doc.data());
+	  	})
 	  	return response.json(mailData);
 	  })
 	  .catch((err) => {
@@ -79,3 +80,4 @@ exports.getMail = (request, response) => {
 
 
 
+ 

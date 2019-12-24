@@ -24,11 +24,12 @@ const {
 //mail routes
 app.get('/mails', getAllMails);
 app.post('/update', FBAuth, postOneMail);
-app.get('/update/:mailsId', getMail)
+app.get('/update/:mailId', getMail)
 //TODO delete mails
 //like a mail
 //unlike mails
 //comment 
+// app.post('/update/: mailId/comment')
 
 //usersRoutes
 app.post('/signup', signUp);
