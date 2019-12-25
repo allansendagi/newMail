@@ -9,7 +9,9 @@ module.exports = (request, response, next) => {
 		return response.status(403).json({ error: 'unauthorized'})
 	}
 
-	admin.auth().verifyIdToken(idToken)
+	admin
+	.auth()
+	.verifyIdToken(idToken)
 	.then(decodedToken => {
 		request.user = decodedToken;
 		return db.collection('users')
@@ -19,6 +21,7 @@ module.exports = (request, response, next) => {
 	})
 	.then(data => {
 		request.user.handle = data.docs[0].data().handle;
+		request.user.imageUrl = data.docs[0].data().imageUrl;
 		return next();
 	})
 	.catch(err => {

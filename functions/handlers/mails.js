@@ -41,7 +41,7 @@ exports.postOneMail = (request, response) => {
 	     	console.error(err);
 	     })
 }
-
+//Fetch one scream
 exports.getMail = (request, response) => {
 	   let mailData = {};
 	db.doc(`/mails/${request.params.mailId}`)
@@ -60,13 +60,6 @@ exports.getMail = (request, response) => {
 	     })
 	  .then((data) => {
 	  	mailData.comments = [];
-
-		// data.forEach(function (doc) {
-		//   mailData.comments.push(doc.data());
-		// });
-		// for(var i=0; i< data.length; i++) {
-		//   mailData.comments.push(doc.data())
-		// }
 	  	data.forEach((doc) => {
 	  		mailData.comments.push(doc.data());
 	  	})
@@ -76,6 +69,34 @@ exports.getMail = (request, response) => {
 	  	console.error(err);
 	  	response.status(500).json({ error: err.code })
 	  })
+  }
+  //comment on a comment.
+  exports.commentOnMail = (request, response) => {
+  	if (request.body.body.trim() === '') 
+  		 return response.status(400).json({ comment: 'Must not be empty'})
+
+  		const newComment = {
+  			body: request.body.body,
+  			createdAt: new Date().toISOString(),
+  			mailId: request.params.mailId,
+  			userHandle: request.user.handle,
+  			userImage: request.user.imageUrl
+  		};
+  	db.doc(`/mails/${request.params.mails}`)
+  	 .get()
+  		.then(doc => {
+  			if(!doc.exists) {
+  				return res.status(404).json({ error: 'mail not found'});
+  			}
+  			return db.collection('comments').add(newComment);
+  		})
+  		.then(() => {
+  			response.json(newComment)
+  		})
+  		.catch(err => {
+  			console.log(err);
+  			response.status(500).json({ error: 'something went wrong'});
+  		})
   }
 
 

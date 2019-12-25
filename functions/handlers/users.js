@@ -82,14 +82,15 @@ exports.login = (request, response) => {
 	 .then(token => {
 	 	return response.json({token});
 	 })
-	 .catch(err => {
-	 	console.errors(err);
-	 	if (err.code === 'auth/wrong-password'){
-	 		return response
-	 		.status(403)
-	 		.json({ general: 'Wrong credentials, please try again'});
-	 	} else 
-	 	return response.status(500).json({ errors: err.code });
+	 .catch((err) => {
+	 	console.error(err);
+	 	// if (err.code === 'wrong-password'){
+	 	// 	return response
+	 	// 	.status(403)
+	 	// 	.json({ general: 'Wrong credentials, please try again'});
+	 	// } else 
+	 	return response.status(403)
+	 	.json({ general:'Wrong credentials, please try again'});
 	 })
 }
 
