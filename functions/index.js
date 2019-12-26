@@ -4,12 +4,16 @@ const express = require('express')
 const app = express();
 
 const FBAuth = require('./util/fbauth');
+const { db } = require('./util/admin');
 
 const { 
 	  getAllMails, 
 	  postOneMail, 
 	  getMail, 
-	  commentOnMail } = require('./handlers/mails');
+	  commentOnMail,
+	  likeMail,
+	  unlikeMail
+	} = require('./handlers/mails');
 const { 
 	signUp,
 	login,
@@ -29,11 +33,12 @@ const {
 app.get('/mails', getAllMails);
 app.post('/update', FBAuth, postOneMail);
 app.get('/update/:mailId', getMail)
-//TODO delete mails
-//like a mail
-//unlike mails
-//comment 
 app.post('/update/:mailId/comment', FBAuth, commentOnMail)
+app.get('/update/:mailId/like', FBAuth, likeMail);
+app.get('/update/:mailId/unlike', FBAuth, unlikeMail)
+
+
+
 
 //usersRoutes
 app.post('/signup', signUp);

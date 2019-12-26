@@ -28,13 +28,17 @@ exports.postOneMail = (request, response) => {
 	const newMail = {
 		body: request.body.body,
 		userHandle: request.user.handle,
-		createdAt: new Date().toISOString()
+		userImage: request.user.imageUrl,
+		createdAt: new Date().toISOString(),
+		likeCount: 0,
+		commentCount: 0
 	};
-	     db
-	     .collection('mails')
+	     db.collection('mails')
 	     .add(newMail)
-	     .then(doc => {
-	     	response.json({message: `document ${doc.id} created successfully`});
+	     .then((doc) => {
+	     	const resMail = newMail;
+	     	resMail.mailId = doc.id;
+ 	     	response.json(resMail);
 	     })
 	     .catch(err => {
 	     	response.status(500).json({error: 'something went wrong'});
@@ -82,9 +86,9 @@ exports.getMail = (request, response) => {
   			userHandle: request.user.handle,
   			userImage: request.user.imageUrl
   		};
-  	db.doc(`/mails/${request.params.mails}`)
+  	db.doc(`/mails/${request.params.mailId}`)
   	 .get()
-  		.then(doc => {
+  		.then((doc) => {
   			if(!doc.exists) {
   				return res.status(404).json({ error: 'mail not found'});
   			}
