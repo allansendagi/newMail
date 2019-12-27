@@ -102,6 +102,84 @@ exports.getMail = (request, response) => {
   			response.status(500).json({ error: 'something went wrong'});
   		})
   }
+  //like
+  exports.likeMail = (request, response) => {
+  	const likeDocument = db.collection('likes').where('userHandle', '==', request.user.handle)
+  	.where('mailId', '==', request.params.mailId).limit(1);
+
+  	const mailDocument = db.doc(`/screams/${request.params.mailId}`);
+
+  	let mailData = {};
+
+  	mailDocument.get()
+  	 .then(doc => {
+  	 	if (doc.exists){
+  	 		mailData = doc.data();
+  	 		mailData.mailId = doc.id;
+  	 		return likeDocument.get();
+  	 	} else {
+  	 		return response.status(404).json({ error: 'mail not found'});
+  	 	}
+  	 })
+  	 .then(data => {
+  	 	if (data.empty){
+  	 		return db.collection('likes').add({
+  	 			mailId: request.params.mailId,
+  	 			userHandle: request.user.handle
+  	 		})
+  	 		.then(() => {
+  	 			mailData.likeCount++
+  	 			return mailDocument.update({ likeCount: mailData.likeCount})
+  	 		})
+  	 		.then(() => {
+  	 			return response.json(mailData);
+  	 		})
+  	 	} else {
+  	 		return response.status(400).json({ error: 'mail already liked'});
+  	 	}
+  	 })
+  	 .catch(err => {
+  	 	response.status(500).json({ error: err.code});
+  	 })
+  }
+
+  exports.unlikeMail = (request, response) => {
+  	const likeDocument = db.collection('likes').where('userHandle', '==', request.user.handle)
+  	.where('mailId', '==', request.params.mailId).limit(1);
+
+  	const mailDocument = db.doc(`/screams/${request.params.mailId}`);
+
+  	let mailData = {};
+
+  	mailDocument.get()
+  	 .then(doc => {
+  	 	if (doc.exists){
+  	 		mailData = doc.data();
+  	 		mailData.mailId = doc.id;
+  	 		return likeDocument.get();
+  	 	} else {
+  	 		return response.status(404).json({ error: 'mail not found'});
+  	 	}
+  	 })
+  	 .then(data => {
+  	 	if (data.empty){
+  	 	return response.status(400).json({ error: 'mail not liked'});
+  	 	} else {
+  	 		return db.doc(`/likes/${data[0].data().id}`).delete()
+  	 		.then(() => {
+  	 			mailData.likeCount--;
+  	 			return mailDocument.update({ likeCount: mailData.likeCount});
+  	 		})
+  	 		.then(() => {
+  	 			response.json(mailData)
+  	 		})
+  	 	}
+  	 })
+  	 .catch(err => {
+  	 	response.status(500).json({ error: err.code});
+  	 })
+
+  }
 
 
 
