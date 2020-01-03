@@ -107,9 +107,9 @@ exports.getMail = (request, response) => {
   	const likeDocument = db.collection('likes').where('userHandle', '==', request.user.handle)
   	.where('mailId', '==', request.params.mailId).limit(1);
 
-  	const mailDocument = db.doc(`/screams/${request.params.mailId}`);
+  	const mailDocument = db.doc(`/mails/${request.params.mailId}`);
 
-  	let mailData = {};
+  	let mailData;
 
   	mailDocument.get()
   	 .then(doc => {
@@ -139,46 +139,49 @@ exports.getMail = (request, response) => {
   	 	}
   	 })
   	 .catch(err => {
+      console.error(err)
   	 	response.status(500).json({ error: err.code});
   	 })
   }
 
   exports.unlikeMail = (request, response) => {
   	const likeDocument = db.collection('likes').where('userHandle', '==', request.user.handle)
-  	.where('mailId', '==', request.params.mailId).limit(1);
+    .where('mailId', '==', request.params.mailId).limit(1);
 
-  	const mailDocument = db.doc(`/screams/${request.params.mailId}`);
+    const mailDocument = db.doc(`/mails/${request.params.mailId}`);
 
-  	let mailData = {};
+    let mailData;
 
-  	mailDocument.get()
-  	 .then(doc => {
-  	 	if (doc.exists){
-  	 		mailData = doc.data();
-  	 		mailData.mailId = doc.id;
-  	 		return likeDocument.get();
-  	 	} else {
-  	 		return response.status(404).json({ error: 'mail not found'});
-  	 	}
-  	 })
-  	 .then(data => {
-  	 	if (data.empty){
-  	 	return response.status(400).json({ error: 'mail not liked'});
-  	 	} else {
-  	 		return db.doc(`/likes/${data[0].data().id}`).delete()
-  	 		.then(() => {
-  	 			mailData.likeCount--;
-  	 			return mailDocument.update({ likeCount: mailData.likeCount});
-  	 		})
-  	 		.then(() => {
-  	 			response.json(mailData)
-  	 		})
-  	 	}
-  	 })
-  	 .catch(err => {
-  	 	response.status(500).json({ error: err.code});
-  	 })
-
+    mailDocument.get()
+     .then(doc => {
+      if (doc.exists){
+        mailData = doc.data();
+        mailData.mailId = doc.id;
+        return likeDocument.get();
+      } else {
+        return response.status(404).json({ error: 'mail not found'});
+      }
+     })
+     .then((data) => {
+      if (data.empty){
+        return response.status(400).json({ error: 'mail not liked'}); 
+      } else {
+        return db
+        .doc(`/likes/${data.docs[0].id}`)
+        .delete()
+        .then(() => {
+          mailData.likeCount--;
+          return mailDocument.update({ likeCount: mailData.likeCount})
+        })
+        .then(() => {
+          response.json(mailData)
+        })
+      }
+     })
+     .catch(err => {
+      console.error(err)
+      response.status(500).json({ error: err.code});
+     })
   }
 
 
