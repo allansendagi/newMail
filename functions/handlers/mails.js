@@ -92,8 +92,11 @@ exports.getMail = (request, response) => {
   			if(!doc.exists) {
   				return res.status(404).json({ error: 'mail not found'});
   			}
-  			return db.collection('comments').add(newComment);
+        return doc.ref.update({ commentCount: doc.data().commentCount + 1});
   		})
+      .then(() => {
+        return db.collection('comments').add(newComment);
+      })
   		.then(() => {
   			response.json(newComment)
   		})
@@ -182,7 +185,38 @@ exports.getMail = (request, response) => {
       console.error(err)
       response.status(500).json({ error: err.code});
      })
+  };
+
+  //delete mail
+  exports.deleteMail = (request, response)=> {
+    const document = db.doc(`/mails/${request.params.mailId}`);
+    document.get()
+        .then(doc => {
+          if (!doc.exists) {
+            return response.status(404).json({ error: 'Mail not found'});
+          }
+          if (doc.data().userHandle !== request.user.handle){
+            return response.status(403).json({ error: 'Unauthorized'});
+          } else {
+            return document.delete();
+          }
+        })
+        .then(() => {
+          response.json({ message: 'mail deleted successfully'});
+        }) 
+        .catch(err => {
+          console.error(err);
+          return response.status(500).json({ error: err.code })
+        })
   }
+
+
+
+
+
+
+
+
 
 
 

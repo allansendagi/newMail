@@ -12,7 +12,8 @@ const {
 	  getMail, 
 	  commentOnMail,
 	  likeMail,
-	  unlikeMail
+	  unlikeMail,
+	  deleteMail
 	} = require('./handlers/mails');
 const { 
 	signUp,
@@ -33,6 +34,7 @@ const {
 app.get('/mails', getAllMails);
 app.post('/update', FBAuth, postOneMail);
 app.get('/update/:mailId', getMail)
+app.delete('/update/:mailId', FBAuth, deleteMail);
 app.post('/update/:mailId/comment', FBAuth, commentOnMail)
 app.get('/update/:mailId/like', FBAuth, likeMail);
 app.get('/update/:mailId/unlike', FBAuth, unlikeMail)
@@ -50,6 +52,31 @@ app.get('/user', FBAuth, getAuthenticatedUser)
 
 exports.api = functions.https.onRequest(app);
 
+exports.createNotificationOnlike = functions.firestore.document('likes/{id}')
+   .onCreate((snapshot) => {
+   	db.doc(`/mails/${snapshot.data()}`).get()
+   	  .then(doc => {
+   	  	if (doc.exists) {
+   	  		return db.doc(`/notifications/${snapshot.id}`).set({
+   	  			createdAt: new Date().toISOString(),
+   	  			recipient: doc.data().userHandle,
+   	  			sender: snapshot.data().userHandle,
+   	  			type: 'like',
+   	  			read: false,
+   	  			mailId: doc.id
+   	  		})
+   	  	}
+   	  })
+   	  .then(() => {
+   	  	return
+   	  })
+   	  .catch(err) => {
+   	  	console.error(err);
+   	  	return 
+   	  })
+   })
+exports.createNotificationOnComment = functions
+	.firestore.document('comments/{id}')
 
 
 
