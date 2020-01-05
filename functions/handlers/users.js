@@ -123,6 +123,22 @@ exports.getAuthenticatedUser = (request, response) => {
 		data.forEach(doc => {
 			userData.likes.push(doc.data());
 		});
+		return db.collection('notofications').where('recipient', '==', request.user.handle)
+		  .orderBy('createdAt', 'desc').get();
+	})
+	.then((data)=> {
+		userData.notifications=[];
+		data.forEach((doc)=> {
+			userData.notofications.push({
+				recipient:doc.data().recipient,
+				sender:doc.data().sender,
+				createdAt:doc.data().createdAt,
+				mailId:doc.data().mailId,
+				type:doc.data().type,
+				read:doc.data().read,
+				notificationId:doc.id
+			})
+		})
 		return response.json(userData);
 	})
 	.catch(err => {

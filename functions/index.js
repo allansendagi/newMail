@@ -54,10 +54,12 @@ exports.api = functions.https.onRequest(app);
 
 exports.createNotificationOnlike = functions.firestore.document('likes/{id}')
    .onCreate((snapshot) => {
-   	db.doc(`/mails/${snapshot.data()}`).get()
-   	  .then(doc => {
+   	db.doc(`/mails/${snapshot.data().mailId}`)
+      .get()
+   	  .then((doc) => {
    	  	if (doc.exists) {
-   	  		return db.doc(`/notifications/${snapshot.id}`).set({
+   	  		return db.doc(`/notifications/${snapshot.id}`)
+             .set({
    	  			createdAt: new Date().toISOString(),
    	  			recipient: doc.data().userHandle,
    	  			sender: snapshot.data().userHandle,
@@ -70,13 +72,54 @@ exports.createNotificationOnlike = functions.firestore.document('likes/{id}')
    	  .then(() => {
    	  	return
    	  })
-   	  .catch(err) => {
+   	  .catch((err) => {
    	  	console.error(err);
    	  	return 
    	  })
    })
+exports.deleteNotificationOnUnLike = functions
+   .firestore.document('likes/{id}')
+   .onDelete((snapshot)=> {
+      db.doc(`/notifications/${snapshot.id}`)
+      .delete()
+      .then(()=>{
+         return;
+      })
+      .catch((err)=> {
+         return;
+      })
+   })
+
+
+
 exports.createNotificationOnComment = functions
 	.firestore.document('comments/{id}')
+   .onCreate((snapshot)=> {
+         db.doc(`/mails/${snapshot.data().mailId}`)
+      .get()
+        .then((doc) => {
+         if (doc.exists) {
+            return db.doc(`/notifications/${snapshot.id}`)
+             .set({
+               createdAt: new Date().toISOString(),
+               recipient: doc.data().userHandle,
+               sender: snapshot.data().userHandle,
+               type: 'comment',
+               read: false,
+               mailId: doc.id
+            })
+         }
+        })
+        .then(() => {
+         return
+        })
+        .catch((err) => {
+         console.error(err);
+         return 
+        })
+   });
+
+
 
 
 
