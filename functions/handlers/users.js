@@ -108,6 +108,41 @@ exports.addUserDetails = (request, response) => {
 	})
 }
 
+//Get any user's details
+exports.getUserDetails = (request, response) => {
+	let userData = {};
+	db.doc(`/users/${request.params.handle}`).get()
+	.then(doc => {
+		if (doc.exists) {
+			userData.user = doc.data();
+			return db.collection('mails').where('userHandle', '==', request.params.handle)
+			.orderBy('createdAt', 'desc')
+			.get();
+		}else {
+			return response.status(404).json({error: 'user not found'})
+		}
+	})
+	.then(data => {
+		userData.mails = [];
+		data.forEach(doc => {
+			userData.mails.push({
+				body: doc.data().body,
+				createdAt: doc.data().createdAt,
+				userHandle: doc.data().userHandle,
+				userImage: doc.data().userImage,
+				likeCount: doc.data().likeCount,
+				commentCount: doc.data().commentCount,
+				mailId:doc.id
+			})
+		})
+	  return response.json(userData);
+	})
+	.catch(err => {
+		console.error(err);
+		return response.status(500).json({ error: err.code })
+	})
+}
+
 //get own user Details;
 exports.getAuthenticatedUser = (request, response) => {
 	let userData = {}
@@ -118,7 +153,7 @@ exports.getAuthenticatedUser = (request, response) => {
 			return db.collection('likes').where('userHandle', '==', request.user.handle).get()
 		}
 	})
-	.then(data => {
+	.then((data) => {
 		userData.likes = [];
 		data.forEach(doc => {
 			userData.likes.push(doc.data());
@@ -166,7 +201,9 @@ let imageToBeUploaded = {};
 		}
 
 		const imageExtension = filename.split('.')[filename.split('.').length -1];
-		imageFileName = `${Math.round(Math.random()*1000000000)}.${imageExtension}`;
+		imageFileName = `${Math.round(
+			Math.random()*1000000000
+			)}.${imageExtension}`;
 		const filepath = path.join(os.tmpdir(), imageFileName);
 		imageToBeUploaded = { filepath, mimetype }; 
 		file.pipe(fs.createWriteStream(filepath));
@@ -197,6 +234,23 @@ let imageToBeUploaded = {};
 
 	}) 
 	busboy.end(request.rawBody);
+};
+
+exports.markNotificationsRead = (request, response) => {
+	let batch = db.batch();
+
+	request.body.forEach(notificationId => {
+		const notification = db.doc(`/notifications/${notificationId}`);
+		batch.update(notification, { read: true});
+	})
+	batch.commit()
+		.then(() => {
+			return response.json({ message: 'notifications marked read'})
+		})
+		.catch(err => {
+			console.error(err);
+			return response.status(500).json({ error: err.code })
+		})
 }
 // immediatemail-b8929.appspot.com
 
