@@ -12,7 +12,10 @@ exports.getAllMails = (request, response) => {
 	 			mailId: doc.id,
 	 			body: doc.data().body,
 	 			userHandle: doc.data().userHandle,
-	 			createdAt: new Date().toISOString()
+	 			createdAt: doc.data().createdAt,
+        commentCount:doc.data().commentCount,
+        likeCount:doc.data().likeCount,
+        userImage:doc.data().userImage
 	 		});
 	 	});
 	 	return response.json(mails);
