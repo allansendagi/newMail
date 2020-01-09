@@ -147,9 +147,9 @@ exports.createNotificationOnComment = functions
         data.forEach(doc => {
           batch.delete(db.doc(`/likes/${doc.id}`));
         })
-        return db.collection('notifications').where('mailId', '==', mailId)
+        return db.collection('notifications').where('mailId', '==', mailId).get();
       })
-      .then(data => {
+      .then((data) => {
         data.forEach(doc => {
           batch.delete(db.doc(`/notifications/${doc.id}`));
         })
